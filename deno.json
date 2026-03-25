@@ -1,0 +1,10 @@
+{
+	"tasks": {
+	},
+	"imports": {
+		"@db/postgres": "jsr:@db/postgres@^0.19.5",
+		"@std/assert": "jsr:@std/assert@1",
+		"redis": "npm:redis@^5.11.0",
+		"resend": "npm:resend@^6.9.4"
+	}
+}
