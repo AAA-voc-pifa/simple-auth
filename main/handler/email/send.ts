@@ -1,5 +1,5 @@
 import * as email_service from '#/service/email.ts'
-import { error_json, success_json } from '#/respond.ts'
+import { error_json, success_json } from '#/response-util.ts'
 import { is_email } from '#/util.ts'
 
 export
