@@ -1,10 +1,6 @@
 import * as email_service from '../service/email.ts'
 import { error_json, success_json } from '../respond.ts'
-
-function is_email(email: string): boolean {
-	const re = /^(?!\.)(?!.*\.\.)([a-z0-9_'+\-\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\-]*\.)+[a-z]{2,}$/i
-	return re.test(email)
-}
+import { is_email } from '../util.ts'
 
 export
 async function send_authcode(url: URL, _: Request): Promise<Response> {
