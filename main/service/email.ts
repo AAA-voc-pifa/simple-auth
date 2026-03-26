@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
-import { resend_apikey } from './env.ts'
-import { upsert_authcode } from './pg.ts'
+import { email_from, resend_apikey } from './env.ts'
+import { get_or_create_user, upsert_authcode, verify_authcode_and_delete } from './pg.ts'
+import type { I_result } from '#/util.ts'
 
 const resend = new Resend(resend_apikey)
 
@@ -25,7 +26,7 @@ async function send_authcode(email: string) {
 	if (typeof(next_send) === 'number')
 		return next_send
 	const res = await resend.emails.send({
-		from: 'Simple Auth <simple-auth@ppz.com>',
+		from: `皮皮仔 <${email_from}>`,
 		to: email,
 		subject: 'Simple Auth - Auth Code',
 		html: `Your auth code is <b>${authcode}</b>`,
@@ -34,4 +35,15 @@ async function send_authcode(email: string) {
 		console.error('failed to send authcode email', res.error)
 		throw new Error('failed to send authcode email')
 	}
+}
+
+export
+async function login(email: string, authcode: string): Promise<I_result<'invalid authcode', string>> {
+	const verified = await verify_authcode_and_delete(email, authcode)
+	if (!verified)
+		return { ok: false, error: 'invalid authcode' }
+	const user = await get_or_create_user(email)
+	const session_token = crypto.randomUUID()
+	// TODO: 保存 session_token 到 Redis
+	return { ok: true, data: session_token }
 }

@@ -12,7 +12,7 @@ async function upsert_authcode(email: string, code: string) {
 			values ($1, $2, now())
 		on conflict (email) do
 			update set code = excluded.code, send_at = excluded.send_at
-				where authcode.send_at < now() - interval '1 minute'
+				where authcode.send_at < now() - interval '2 minutes'
 	`, [email, code])
 
 	switch (result.rowCount) {
@@ -21,7 +21,7 @@ async function upsert_authcode(email: string, code: string) {
 			// 此时返回“下次发送，需要等多久（秒）”
 			const next_send = await client.queryObject(`
 				SELECT
-					EXTRACT(EPOCH FROM (send_at + interval '60 seconds' - now()))
+					EXTRACT(EPOCH FROM (send_at + interval '2 minutes' - now()))
 				FROM authcode
 				WHERE email = $1;
 			`, [email])
@@ -32,4 +32,43 @@ async function upsert_authcode(email: string, code: string) {
 		default:
 			throw new Error('unexpected sql at upsert_authcode')
 	}
+}
+
+export
+async function verify_authcode_and_delete(email: string, code: string): Promise<boolean> {
+	const result = await client.queryObject(`
+		delete from authcode
+			where email = $1 and code = $2 and send_at > now() - interval '2 minutes'
+	`, [email, code])
+	switch (result.rowCount) {
+		case 0:
+			return false
+		case 1:
+			return true
+		default:
+			throw new Error('unexpected sql query result at verify_authcode')
+	}
+}
+
+export
+interface I_user {
+	id: string
+	email: string
+	create_at: Date
+	update_at: Date
+}
+export
+async function get_or_create_user(email: string): Promise<I_user & { is_new: boolean }> {
+	const result = await client.queryObject(`
+		insert into "user" (email) values ($1)
+			on conflict (email) do
+			update set email = excluded.email
+		returning *, (xmax = 0) as is_new
+	`, [email])
+
+	if (result.rowCount === 1)
+			return result.rows[0] as I_user & { is_new: boolean }
+
+	console.error(result)
+	throw new Error('unexpected sql query result at get_user_by_email')
 }

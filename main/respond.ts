@@ -24,3 +24,8 @@ function error_json(error: string, data?: unknown) {
 		data,
 	})
 }
+
+export
+function bad_request(msg: string) {
+	return new Response(msg, { status: 400 })
+}
