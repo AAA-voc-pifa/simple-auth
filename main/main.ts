@@ -1,4 +1,4 @@
-import { send_authcode } from './email/send.ts'
+import { send_authcode } from './handler/email/send.ts'
 
 Deno.serve(async req => {
 	const url = new URL(req.url)
