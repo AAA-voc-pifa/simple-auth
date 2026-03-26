@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { new_session } from './session.ts'
 import { email_from, resend_apikey } from './env.ts'
 import { get_or_create_user, upsert_authcode, verify_authcode_and_delete } from './pg.ts'
 import type { I_result } from '#/util.ts'
@@ -43,7 +44,8 @@ async function login(email: string, authcode: string): Promise<I_result<'invalid
 	if (!verified)
 		return { ok: false, error: 'invalid authcode' }
 	const user = await get_or_create_user(email)
-	const session_token = crypto.randomUUID()
-	// TODO: 保存 session_token 到 Redis
-	return { ok: true, data: session_token }
+	return {
+		ok: true,
+		data: await new_session(user.id),
+	}
 }
