@@ -1,10 +1,15 @@
 # Simple Auth
 
-Simple Auth 是一个简洁的用户、会话管理系统（以下简称 “auth 系统”），以 serverless 部署。
+Simple Auth 是一个用户、会话系统。保证可用，尽量简单。
 
-+ Deno Deploy
-+ PostgreSQL (User)
-+ Redis (Session)
+部署: `Deno Deploy`, `PostgreSQL`
+
+## 临时会话 & 临时用户
+用户用邮箱或 oauth 登录时，如果是新用户（未绑定 user 表），则为“临时用户”。
+此时，要询问用户是否绑定到已有用户。
+
+临时用户的信息，如 oauth id、email 存在“临时会话”里。
+临时会话就是用类似 jwt 的方式（但有效期应很短），把**已验证**的 oauth id 或 email 写在 httpOnly 的 cookie 里。
 
 ## FAQ
 
@@ -15,6 +20,6 @@ Simple Auth 是一个简洁的用户、会话管理系统（以下简称 “auth
 + 多个业务系统可共享同一个 auth 系统
 + auth 系统可以单独迭代升级（不重要的业务系统可以比较随意）
 
-##### 为什么登录走 http，而会话直接读 redis
+##### 为什么登录走 http，而会话直接读 pgsql
 
-+ http 简单成熟稳定，所以应尽量走 http，但 http 太慢
++ 直接读 pqsql 比较快

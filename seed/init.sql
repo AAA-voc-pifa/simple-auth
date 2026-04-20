@@ -8,18 +8,19 @@ create table "authcode" (
 );
 
 create table "user" (
-	id uuid primary key default gen_random_uuid(),
+	id uuid primary key,
+	email citext unique,
 	create_at timestamptz not null default now(),
 	update_at timestamptz not null default now()
 );
 
-create table "login_by_email" (
-	email citext primary key,
-	user_id uuid not null unique references "user" on delete restrict,
-	create_at timestamptz not null default now()
+create table "session" (
+	id uuid primary key,
+	user_id uuid not null references "user" on delete restrict,
+	create_at timestamptz not null default now() -- 在业务层设置“有效期”，计算出“过期时间”
 );
 
-create type "oauth_provider" as enum ('github');
+create type "oauth_provider" as enum ('github', 'google');
 create table "login_by_oauth" (
 	oauth_id text,
 	provider "oauth_provider",
