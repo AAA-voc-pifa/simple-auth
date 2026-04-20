@@ -2,9 +2,9 @@ create extension if not exists citext;
 
 create table "authcode" (
 	email citext primary key,
-	code_hash text not null,
-	send_at timestamptz not null,
-	attempt_count int not null default 0
+	code_hash text not null, -- 在业务层做 hash
+	send_at timestamptz not null, -- 在业务层设置“有效期”，计算出“过期时间”
+	attempt_count int not null default 0 -- 在业务层限制“尝试次数”
 );
 
 create table "user" (
