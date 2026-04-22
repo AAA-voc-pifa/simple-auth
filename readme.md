@@ -4,6 +4,31 @@ Simple Auth 是一个用户、会话系统。保证可用，尽量简单。
 
 部署: `Deno Deploy`, `PostgreSQL`
 
+## 架构
+
+#### 注册 & 登录
+
+```mermaid
+architecture-beta
+	service pgsql(database)[Auth Database]
+	service simple_auth(server)[Auth Server]
+	service client(internet)[User]
+
+	pgsql:R -- L:simple_auth
+	simple_auth:R -- L:client
+```
+
+#### 会话
+``` mermaid
+architecture-beta
+	service pgsql(database)[Auth Database]
+	service biz(server)[Business Server]
+	service client(internet)[User]
+
+	pgsql:R -- L:biz
+	biz:R -- L:client
+```
+
 ## 临时会话 & 临时用户
 用户用邮箱或 oauth 登录时，如果是新用户（未绑定 user 表），则为“临时用户”。
 此时，要询问用户是否绑定到已有用户。
