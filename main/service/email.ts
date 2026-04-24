@@ -1,17 +1,17 @@
+import type { I_result } from '@ppz/ppz'
 import { Resend } from 'resend'
 import { new_session } from './session.ts'
 import { email_from, resend_apikey } from './env.ts'
 import { get_or_create_user, upsert_authcode, verify_authcode_and_delete } from './pg.ts'
-import type { I_result } from '#/util.ts'
 
 const resend = new Resend(resend_apikey)
 
 // 生成 6 位随机数
 function generate_authcode(): string {
 	const range = 1_000_000 // 0..999999
-	const max_exclusive = 0x1_0000_0000 // 2^32
+	const max_exclusive = 0x1_0000_0000 // 16**8 = 2**32
 	const limit = max_exclusive - (max_exclusive % range)
-	const buf = new Uint32Array(1)
+	const buf = new Uint32Array(1) // 2**19 < 999999 < 2**20
 	while (true) {
 		crypto.getRandomValues(buf)
 		const x = buf[0]
