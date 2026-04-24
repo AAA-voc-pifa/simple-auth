@@ -1,5 +1,6 @@
 {
 	"tasks": {
+		"generate-jwt-secret": "deno run ./script/jwt-secret.ts"
 	},
 	"imports": {
 		"#/": "./main/",
