@@ -6,11 +6,12 @@ Deno.serve(async req => {
 	try {
 		switch (url.pathname) {
 			case '/send-authcode':
+				// TODO: 应该只接受 POST 请求
 				return await send_authcode(url, req)
 			case '/login/email':
 				return await login_with_email(req)
 			default:
-				return new Response('what are you doing?', { status: 404 })
+				return new Response('NoT FoUND', { status: 404 })
 		}
 	} catch (error) {
 		if (error instanceof Response)

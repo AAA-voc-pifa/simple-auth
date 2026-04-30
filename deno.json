@@ -1,15 +1,16 @@
 {
 	"tasks": {
-		"generate-jwt-secret": "deno run ./script/jwt-secret.ts"
+		"generate-secret": "deno run ./script/secret.ts"
 	},
 	"imports": {
-		"#/": "./main/",
+		"#service/": "./main/service/",
 		"@db/postgres": "jsr:@db/postgres@^0.19.5",
 		"@panva/jose": "jsr:@panva/jose@^6.2.2",
 		"@ppz/oauth-login": "jsr:@ppz/oauth-login@^0.2.1",
 		"@ppz/ppz": "jsr:@ppz/ppz@^0.0.2",
 		"@std/assert": "jsr:@std/assert@1",
 		"@std/encoding": "jsr:@std/encoding@^1.0.10",
+		"@std/http": "jsr:@std/http@^1.1.0",
 		"resend": "npm:resend@^6.9.4"
 	}
 }

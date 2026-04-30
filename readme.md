@@ -1,8 +1,16 @@
 # Simple Auth
 
-Simple Auth 是一个用户、会话系统。保证可用，尽量简单。
+Simple Auth 是一个**单独部署的**的用户、会话系统。
 
 部署: `Deno Deploy`, `PostgreSQL`
+
+单独部署，即独立于业务系统。业务系统可能是用 Java 写的，部署在阿里云的服务器上，而 Simple Auth 是用 typescript 写的，可以部署在腾讯云的服务器上。
+
+用户可通过邮箱、OAuth 验证身份。支持多种 OAuth provider，如 GitHub、Google。
+
+不区分登录和注册，“第一次登录”视为注册。
+
+同一时间，邮箱验证码只能是“登录”或“绑定”之一种。验证码有效时间是 2 分钟，重复发送间隔是 1 分钟。
 
 ## 架构
 
@@ -28,13 +36,6 @@ architecture-beta
 	pgsql:R -- L:biz
 	biz:R -- L:client
 ```
-
-## 临时会话 & 临时用户
-用户用邮箱或 oauth 登录时，如果是新用户（未绑定 user 表），则为“临时用户”。
-此时，要询问用户是否绑定到已有用户。
-
-临时用户的信息，如 oauth id、email 存在“临时会话”里。
-临时会话就是用类似 jwt 的方式（但有效期应很短），把**已验证**的 oauth id 或 email 写在 httpOnly 的 cookie 里。
 
 ## FAQ
 
