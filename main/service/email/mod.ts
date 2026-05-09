@@ -31,7 +31,9 @@ async function send_authcode(type: I_authcode_type, email: string): Promise<Date
 		from: `Simple Auth <${email_from}>`,
 		to: email,
 		subject: 'Simple Auth - Auth Code',
-		html: `Your auth code for ${type}ing is <b>${authcode}</b>.`,
+		html: type === 'login'
+			? `Your login auth code is <b>${authcode}</b>.`
+			: `Your bind auth code is <b>${authcode}</b>.`,
 	})
 	if (res.error) {
 		console.error('failed to send authcode email', res.error)

@@ -13,6 +13,7 @@ async function read_body(req: Request) {
 
 export
 async function login_with_email(req: Request): Promise<Response> {
+	// TODO: bad body
 	const body = await read_body(req)
 	const result = await email_service.login(body.email, body.code)
 	if (!result.ok)

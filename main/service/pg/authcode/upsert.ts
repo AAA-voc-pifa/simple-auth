@@ -29,7 +29,7 @@ async function upsert_authcode(
 				send_at: Date
 			}>(`
 				select send_at from authcode where email = $1
-			`, [email, type])
+			`, [email])
 			return send_at_result.rows[0].send_at
 		}
 		case 1:
