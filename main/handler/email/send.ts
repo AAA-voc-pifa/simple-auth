@@ -1,6 +1,6 @@
 import { is_email } from '@ppz/ppz'
 import * as email_service from '#service/email/mod.ts'
-import { error_json, success_json } from '#service/respond-util.ts'
+import { error_json, success_json } from '#service/http-util/respond.ts'
 
 export
 async function send_authcode(url: URL, _: Request): Promise<Response> {
