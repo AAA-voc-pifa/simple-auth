@@ -29,3 +29,8 @@ export
 function bad_request() {
 	return new Response('baD requesT', { status: 400 })
 }
+
+export
+function unauthorized() {
+	return new Response('unauthorizeD', { status: 401 })
+}

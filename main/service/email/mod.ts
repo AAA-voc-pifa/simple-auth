@@ -2,7 +2,14 @@ import type { I_async_result } from '@ppz/ppz'
 import { Resend } from 'resend'
 import { email_from, resend_apikey } from '#service/env.ts'
 import type { I_authcode_type, I_session } from '#service/common.ts'
-import { upsert_authcode, verify_authcode, login_or_register_by_email } from '#service/pg/mod.ts'
+import {
+	bind_email_to_user,
+	login_or_register_by_email,
+	verify_authcode,
+	upsert_authcode,
+	get_user,
+	get_user_by_email,
+} from '#service/pg/mod.ts'
 
 const resend = new Resend(resend_apikey)
 
@@ -61,4 +68,41 @@ async function login(
 		ok: true,
 		value: await login_or_register_by_email(email),
 	}
+}
+
+export
+async function can_bind(user_id: string, email: string): Promise<string | null> {
+	const user = await get_user(user_id)
+	if (user?.email !== null)
+		return 'already has an email'
+	if (await get_user_by_email(email))
+		return 'email occupied'
+	return null
+}
+
+export
+async function bind_email(
+	user_id: string, email: string, authcode: string
+): I_async_result<
+	null,
+	| 'too many wrong attempts'
+	| 'verification failed'
+	| 'email occupied or already has an email'
+> {
+	const verified = await verify_authcode(email, 'bind', authcode)
+	if (!verified.ok) {
+		console.error(`Failed to bind email(${email}) for user(${user_id}).`, verified.error)
+		return {
+			ok: false,
+			error: verified.error.key === 'wrong authcode' && verified.error.attempt_count >= 3
+				? 'too many wrong attempts'
+				: 'verification failed',
+		}
+	}
+
+	const updated = await bind_email_to_user(user_id, email)
+	if (!updated)
+		return { ok: false, error: 'email occupied or already has an email' }
+
+	return { ok: true, value: null }
 }

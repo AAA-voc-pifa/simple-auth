@@ -28,7 +28,7 @@ async function verify_authcode(
 			return { ok: true, value: null }
 		case 0: {
 			// 没删成
-			const attempt_count_result = await client.queryObject(`
+			const attempt_count_result = await client.queryObject<{ attempt_count: number }>(`
 				update authcode
 					set attempt_count = attempt_count + 1
 				where email = $1
@@ -42,7 +42,6 @@ async function verify_authcode(
 					ok: false,
 					error: {
 						key: 'wrong authcode',
-						// @ts-ignore:
 						attempt_count: attempt_count_result.rows[0].attempt_count,
 					}
 				}
