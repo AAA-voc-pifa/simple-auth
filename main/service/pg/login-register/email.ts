@@ -1,3 +1,4 @@
+import { assert } from '@std/assert'
 import type { I_session } from '#service/common.ts'
 import { client } from '../pg.ts'
 
@@ -15,8 +16,9 @@ async function login_or_register_by_email(email: string): Promise<I_session> {
 	const q_result = await client.queryObject<{ id: string }>(`
 		select id from "user" where email = $1
 	`, [email])
-	const user_id = q_result.rows[0].id
-	return new_session(user_id)
+	const new_user = q_result.rows[0]
+	assert(new_user !== undefined)
+	return await new_session(new_user.id)
 }
 
 async function new_session(user_id: string): Promise<I_session> {

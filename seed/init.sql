@@ -1,6 +1,6 @@
 create extension if not exists citext;
 
-create type "authcode_type" as enum ('bind', 'login');
+create type "authcode_type" as enum ('bind', 'unbind', 'login');
 create table "authcode" (
 	email citext primary key,
 	code_type "authcode_type" not null,

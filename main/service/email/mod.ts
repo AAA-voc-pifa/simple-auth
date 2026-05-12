@@ -5,9 +5,10 @@ import type { I_authcode_type, I_session } from '#service/common.ts'
 import {
 	bind_email_to_user,
 	login_or_register_by_email,
+	unbind_email_from_user,
 	verify_authcode,
 	upsert_authcode,
-	get_user,
+	get_user_by_id,
 	get_user_by_email,
 } from '#service/pg/mod.ts'
 
@@ -34,13 +35,16 @@ async function send_authcode(type: I_authcode_type, email: string): Promise<Date
 	if (last_send_at !== null)
 		return last_send_at
 
+	const body_html = type === 'login'
+		? `Your login auth code is <b>${authcode}</b>.`
+		: type === 'bind'
+		? `Your bind auth code is <b>${authcode}</b>.`
+		: `Your unbind auth code is <b>${authcode}</b>.`
 	const res = await resend.emails.send({
 		from: `Simple Auth <${email_from}>`,
 		to: email,
 		subject: 'Simple Auth - Auth Code',
-		html: type === 'login'
-			? `Your login auth code is <b>${authcode}</b>.`
-			: `Your bind auth code is <b>${authcode}</b>.`,
+		html: body_html,
 	})
 	if (res.error) {
 		console.error('failed to send authcode email', res.error)
@@ -72,8 +76,8 @@ async function login(
 
 export
 async function can_bind(user_id: string, email: string): Promise<string | null> {
-	const user = await get_user(user_id)
-	if (user?.email !== null)
+	const user = await get_user_by_id(user_id)
+	if (user.email !== null)
 		return 'already has an email'
 	if (await get_user_by_email(email))
 		return 'email occupied'
@@ -104,5 +108,28 @@ async function bind_email(
 	if (!updated)
 		return { ok: false, error: 'email occupied or already has an email' }
 
+	return { ok: true, value: null }
+}
+
+export
+async function unbind_email(
+	user_id: string, email: string, authcode: string
+): I_async_result<
+	null,
+	| 'too many wrong attempts'
+	| 'verification failed'
+> {
+	const verified = await verify_authcode(email, 'unbind', authcode)
+	if (!verified.ok) {
+		console.error(`Failed to unbind email(${email}) for user(${user_id}).`, verified.error)
+		return {
+			ok: false,
+			error: verified.error.key === 'wrong authcode' && verified.error.attempt_count >= 3
+				? 'too many wrong attempts'
+				: 'verification failed',
+		}
+	}
+
+	await unbind_email_from_user(user_id, email)
 	return { ok: true, value: null }
 }

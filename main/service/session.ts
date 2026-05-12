@@ -1,5 +1,6 @@
 import { getCookies } from '@std/http/cookie'
-import { get_user_id_by_session } from './pg/mod.ts'
+import { get_user_id_by_session, get_user_by_id } from './pg/mod.ts'
+import type { I_user } from './common.ts'
 import { unauthorized } from './http-util/respond.ts'
 
 export
@@ -19,4 +20,10 @@ async function get_userid(req: Request): Promise<string> {
 	if (id === null)
 		throw unauthorized()
 	return id
+}
+
+export
+async function get_user(req: Request): Promise<I_user> {
+	const user_id = await get_userid(req)
+	return await get_user_by_id(user_id)
 }

@@ -1,5 +1,5 @@
 export
-type I_authcode_type = 'bind' | 'login'
+type I_authcode_type = 'bind' | 'unbind' | 'login'
 
 export
 interface I_session {
