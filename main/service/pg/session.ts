@@ -1,4 +1,4 @@
-import { client } from '../pg.ts'
+import { client } from './pg.ts'
 
 export
 async function get_user_id_by_session(session_id: string): Promise<string | null> {

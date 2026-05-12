@@ -1,5 +1,5 @@
 export * from './authcode/upsert.ts'
 export * from './authcode/verify.ts'
 export * from './login-register/email.ts'
-export * from './session/mod.ts'
-export * from './user/mod.ts'
+export * from './session.ts'
+export * from './user.ts'

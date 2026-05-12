@@ -1,5 +1,5 @@
 import { assert } from '@std/assert'
-import { client } from '../pg.ts'
+import { client } from './pg.ts'
 import type { I_user } from '#service/common.ts'
 
 export
